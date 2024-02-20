@@ -56,6 +56,6 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/spf13/viper v1.16.0
 	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.24.0
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.27.0
 )
