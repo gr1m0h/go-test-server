@@ -7,7 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	golang.org/x/sync v0.3.0
 	google.golang.org/protobuf v1.31.0
-	gopkg.in/go-playground/validator.v9 v9.31.0
+	gopkg.in/go-playground/validator.v10 v10.19.0
 )
 
 require (
