@@ -16,7 +16,7 @@ services:
   adminer:
     container_name: go-test-adminer
     hostname: adminer
-    image: adminer:4.8.1
+    image: adminer:4.17.1
     restart: always
     ports:
       - 8080:8080
