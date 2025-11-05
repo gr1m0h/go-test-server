@@ -1,24 +1,24 @@
-package mysql
+package postgres
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 
-	"github.com/grimoh/go-test-server/article/repository"
-	"github.com/grimoh/go-test-server/domain"
+	"github.com/grimoh/test-server/article/repository"
+	"github.com/grimoh/test-server/domain"
 	"go.uber.org/zap"
 )
 
-type mySQLArticleRepository struct {
+type postgresArticleRepository struct {
 	Conn *sql.DB
 }
 
-func NewMySQLArticleRepository(Conn *sql.DB) domain.ArticleRepository {
-	return &mySQLArticleRepository{Conn}
+func NewPostgresArticleRepository(Conn *sql.DB) domain.ArticleRepository {
+	return &postgresArticleRepository{Conn}
 }
 
-func (m *mySQLArticleRepository) fetch(ctx context.Context, query string, args ...interface{}) (result []domain.Article, err error) {
+func (m *postgresArticleRepository) fetch(ctx context.Context, query string, args ...interface{}) (result []domain.Article, err error) {
 	rows, err := m.Conn.QueryContext(ctx, query, args...)
 	if err != nil {
 		zap.S().Error(err)
@@ -57,9 +57,9 @@ func (m *mySQLArticleRepository) fetch(ctx context.Context, query string, args .
 	return result, nil
 }
 
-func (m *mySQLArticleRepository) Fetch(ctx context.Context, cursor string, num int64) (res []domain.Article, nextCursor string, err error) {
+func (m *postgresArticleRepository) Fetch(ctx context.Context, cursor string, num int64) (res []domain.Article, nextCursor string, err error) {
 	query := `SELECT id,title,content, author_id, updated_at, created_at
-  						FROM article WHERE created_at > ? ORDER BY created_at LIMIT ? `
+  						FROM article WHERE created_at > $1 ORDER BY created_at LIMIT $2 `
 
 	decodedCursor, err := repository.DecodeCursor(cursor)
 	if err != nil && cursor != "" {
@@ -77,9 +77,9 @@ func (m *mySQLArticleRepository) Fetch(ctx context.Context, cursor string, num i
 
 	return
 }
-func (m *mySQLArticleRepository) GetById(ctx context.Context, id int64) (res domain.Article, err error) {
+func (m *postgresArticleRepository) GetById(ctx context.Context, id int64) (res domain.Article, err error) {
 	query := `SELECT id,title,content, author_id, updated_at, created_at
-  						FROM article WHERE ID = ?`
+  						FROM article WHERE ID = $1`
 
 	list, err := m.fetch(ctx, query, id)
 	if err != nil {
@@ -95,9 +95,9 @@ func (m *mySQLArticleRepository) GetById(ctx context.Context, id int64) (res dom
 	return
 }
 
-func (m *mySQLArticleRepository) GetByTitle(ctx context.Context, title string) (res domain.Article, err error) {
+func (m *postgresArticleRepository) GetByTitle(ctx context.Context, title string) (res domain.Article, err error) {
 	query := `SELECT id,title,content, author_id, updated_at, created_at
-  						FROM article WHERE title = ?`
+  						FROM article WHERE title = $1`
 
 	list, err := m.fetch(ctx, query, title)
 	if err != nil {
@@ -112,27 +112,19 @@ func (m *mySQLArticleRepository) GetByTitle(ctx context.Context, title string) (
 	return
 }
 
-func (m *mySQLArticleRepository) Store(ctx context.Context, a *domain.Article) (err error) {
-	query := `INSERT  article SET title=? , content=? , author_id=?, updated_at=? , created_at=?`
-	stmt, err := m.Conn.PrepareContext(ctx, query)
+func (m *postgresArticleRepository) Store(ctx context.Context, a *domain.Article) (err error) {
+	query := `INSERT INTO article (title, content, author_id, updated_at, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+
+	err = m.Conn.QueryRowContext(ctx, query, a.Title, a.Content, a.Author.Id, a.UpdatedAt, a.CreatedAt).Scan(&a.Id)
 	if err != nil {
 		return
 	}
 
-	res, err := stmt.ExecContext(ctx, a.Title, a.Content, a.Author.Id, a.UpdatedAt, a.CreatedAt)
-	if err != nil {
-		return
-	}
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return
-	}
-	a.Id = lastID
 	return
 }
 
-func (m *mySQLArticleRepository) Delete(ctx context.Context, id int64) (err error) {
-	query := "DELETE FROM article WHERE id = ?"
+func (m *postgresArticleRepository) Delete(ctx context.Context, id int64) (err error) {
+	query := "DELETE FROM article WHERE id = $1"
 
 	stmt, err := m.Conn.PrepareContext(ctx, query)
 	if err != nil {
@@ -156,8 +148,8 @@ func (m *mySQLArticleRepository) Delete(ctx context.Context, id int64) (err erro
 
 	return
 }
-func (m *mySQLArticleRepository) Update(ctx context.Context, ar *domain.Article) (err error) {
-	query := `UPDATE article set title=?, content=?, author_id=?, updated_at=? WHERE ID = ?`
+func (m *postgresArticleRepository) Update(ctx context.Context, ar *domain.Article) (err error) {
+	query := `UPDATE article set title=$1, content=$2, author_id=$3, updated_at=$4 WHERE ID = $5`
 
 	stmt, err := m.Conn.PrepareContext(ctx, query)
 	if err != nil {

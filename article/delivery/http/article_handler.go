@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap"
 	validator "gopkg.in/go-playground/validator.v9"
 
-	"github.com/grimoh/go-test-server/domain"
-	"github.com/labstack/echo"
+	"github.com/grimoh/test-server/domain"
+	"github.com/labstack/echo/v4"
 )
 
 type ResponseError struct {

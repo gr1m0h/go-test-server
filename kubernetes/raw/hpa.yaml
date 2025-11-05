@@ -1,13 +1,13 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: go-test-server
-  namespace: go-test-server
+  name: test-server
+  namespace: test-server
 spec:
   scaleTargetRef:
     apiVersion: extensions/v1beta1
     kind: Deployment
-    name: go-test-server
+    name: test-server
   minReplicas: 2
   maxReplicas: 6
   metrics:

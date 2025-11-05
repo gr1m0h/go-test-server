@@ -1,10 +1,12 @@
 # Binaries for programs and plugins
 main
+test-server
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+.serena
 
 # Test binary, build with `go test -c`
 *.test

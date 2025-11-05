@@ -1,10 +1,10 @@
-# go-test-server
+# test-server
 
 ## Usage
 
 ### local
 
-Run go-test-server
+Run test-server
 
 ```sh
 go run app/main.go
@@ -12,11 +12,11 @@ go run app/main.go
 
 #### Docker
 
-Run go-test-server
+Run test-server
 
 ```sh
-docker build -t go-test-server .
-docker run -p 8080:8080 go-test-server
+docker build -t test-server .
+docker run -p 8080:8080 test-server
 ```
 
 #### Kubernetes
@@ -24,7 +24,7 @@ docker run -p 8080:8080 go-test-server
 Prepare Docker Image.
 
 ```
-docker build -t go-test-server .
+docker build -t test-server .
 ```
 
 Create K8s Cluster using [kind](https://github.com/kubernetes-sigs/kind) and load local Docker Image.
@@ -32,7 +32,7 @@ Create K8s Cluster using [kind](https://github.com/kubernetes-sigs/kind) and loa
 ```sh
 kind create cluster
 kubectl cluster-info --context kind-kind
-kind load docker-image go-test-server
+kind load docker-image test-server
 ```
 
 ##### Kubernetes Manifest(Raw)
@@ -41,7 +41,7 @@ Apply K8s manifest and connect to K8s service.
 
 ```sh
 kubectl apply -f kubernetes/raw
-kubectl port-forward service/go-test-server 8080:8080 -n go-test-server
+kubectl port-forward service/test-server 8080:8080 -n test-server
 ```
 ##### Kubernetes Manifest(HelmChart)
 

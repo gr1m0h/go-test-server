@@ -4,18 +4,17 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/url"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 
-	_articleHttpDelivery "github.com/grimoh/go-test-server/article/delivery/http"
-	_articleHTTPDeliveryMiddleware "github.com/grimoh/go-test-server/article/delivery/http/middleware"
-	_articleRepo "github.com/grimoh/go-test-server/article/repository/mysql"
-	_articleUsecase "github.com/grimoh/go-test-server/article/usecase"
-	_authorRepo "github.com/grimoh/go-test-server/author/repository/mysql"
+	_articleHttpDelivery "github.com/grimoh/test-server/article/delivery/http"
+	_articleHTTPDeliveryMiddleware "github.com/grimoh/test-server/article/delivery/http/middleware"
+	_articleRepo "github.com/grimoh/test-server/article/repository/postgres"
+	_articleUsecase "github.com/grimoh/test-server/article/usecase"
+	_authorRepo "github.com/grimoh/test-server/author/repository/postgres"
 )
 
 func init() {
@@ -35,15 +34,11 @@ func main() {
 	dbUser := viper.GetString(`database.user`)
 	dbPass := viper.GetString(`database.pass`)
 	dbName := viper.GetString(`database.name`)
-	conn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 
-	val := url.Values{}
-	val.Add("parseTime", "1")
-	val.Add("loc", "Local")
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPass, dbName)
 
-	dsn := fmt.Sprintf("%s?%s", conn, val.Encode())
-
-	dbConn, err := sql.Open(`mysql`, dsn)
+	dbConn, err := sql.Open(`postgres`, dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,8 +56,8 @@ func main() {
 	middle := _articleHTTPDeliveryMiddleware.InitMiddleware()
 	e.Use(middle.CORS)
 
-	authorRepo := _authorRepo.NewMySQLAuthorRepository(dbConn)
-	ar := _articleRepo.NewMySQLArticleRepository(dbConn)
+	authorRepo := _authorRepo.NewPostgresAuthorRepository(dbConn)
+	ar := _articleRepo.NewPostgresArticleRepository(dbConn)
 
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 	au := _articleUsecase.NewArticleUsecase(ar, authorRepo, timeoutContext)

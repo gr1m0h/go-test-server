@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/grimoh/go-test-server/domain"
+	"github.com/grimoh/test-server/domain"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
