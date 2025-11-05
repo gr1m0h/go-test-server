@@ -1,26 +1,26 @@
-ARG PACKAGE=github.com/grimoh/go-test-server
+ARG PACKAGE=github.com/gr1m0h/test-server
 
 # build
-FROM golang:1.20-alpine3.16 as builder
+FROM golang:1.25-alpine as builder
 
 COPY . /go/src/$PACKAGE
 WORKDIR /go/src/$PACKAGE
 
 RUN apk add --update --no-cache \
-	git
+    git
 
 ENV \
-	CGO_ENABLED=0 \
-	GOOS=linux \
-	GOARCH=amd64
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
 COPY go.mod go.sum ./
 RUN GO111MODULE=on go mod download
 
-RUN go build -o /opt/go-test-server app/main.go
+RUN go build -o /opt/test-server app/main.go
 
 # run
-FROM alpine:3.18 as executor
+FROM alpine:3.22 as executor
 
 WORKDIR /opt
 COPY --from=builder /opt /opt
@@ -28,7 +28,7 @@ COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 COPY --from=builder /go/src /go/src
 
 ENV \
-	PATH=/opt:$PATH
+    PATH=/opt:$PATH
 
 USER 12345
-CMD ["go-test-server"]
+CMD ["test-server"]

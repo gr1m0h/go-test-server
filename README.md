@@ -12,19 +12,37 @@ go run app/main.go
 
 #### Docker
 
-Run test-server
+Build Docker image
 
 ```sh
-docker build -t test-server .
-docker run -p 8080:8080 test-server
+make docker-build
+```
+
+#### Docker Compose
+
+Run test-server with PostgreSQL database and Adminer interface
+
+```sh
+make docker-run
+```
+
+This will start:
+- test-server on http://localhost:9090
+- Adminer (database management interface) on http://localhost:8080
+- PostgreSQL database on port 5432
+
+Stop the services:
+
+```sh
+make docker-stop
 ```
 
 #### Kubernetes
 
 Prepare Docker Image.
 
-```
-docker build -t test-server .
+```sh
+make docker-build
 ```
 
 Create K8s Cluster using [kind](https://github.com/kubernetes-sigs/kind) and load local Docker Image.
@@ -43,6 +61,7 @@ Apply K8s manifest and connect to K8s service.
 kubectl apply -f kubernetes/raw
 kubectl port-forward service/test-server 8080:8080 -n test-server
 ```
+
 ##### Kubernetes Manifest(HelmChart)
 
 ##### Kubernetes Manifest(Helmfile)

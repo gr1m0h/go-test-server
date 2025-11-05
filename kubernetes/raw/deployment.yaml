@@ -21,45 +21,45 @@ spec:
           secret:
             secretName: test-secret
       containers:
-      - name: test-server
-        image: ghcr.io/grimoh/test-server/test-server:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "100m"
-          requests:
-            memory: "256Mi"
-            cpu: "50m"
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8080
-            httpHeaders:
-              - name: Host
-                value: KubernetesLivenessProbe
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8080
-            httpHeaders:
-              - name: Host
-                value: KubernetesReadinessProbe
-        env:
-          - name: LOG_LEVEL
-            valueFrom:
-              configMapKeyRef:
-                name: test-config
-                key: log_level
-          - name: USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: test-secret
-                key: user
-          - name: PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: test-secret
-                key: password
+        - name: test-server
+          image: ghcr.io/gr1m0h/test-server/test-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+            requests:
+              memory: "256Mi"
+              cpu: "50m"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              httpHeaders:
+                - name: Host
+                  value: KubernetesLivenessProbe
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+              httpHeaders:
+                - name: Host
+                  value: KubernetesReadinessProbe
+          env:
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: test-config
+                  key: log_level
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: user
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: password
